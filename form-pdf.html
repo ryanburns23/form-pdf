@@ -154,7 +154,7 @@ Converts a set of options to a pdf using jspdf. Built to be used with paper-form
         for (var i = 0; i < data.length; i++) {
 
           var title = data[i].label || "";
-          if (data[i].type == "checkbox") {
+          if (data[i].type == "checkbox" && data[i].selectedValues) {
             var val = this._getCheckboxValues(data[i].selectedValues);
           }else {
             var val = data[i].value || "";
