@@ -1,0 +1,188 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="jspdf-import.html">
+
+<!--
+`form-pdf`
+Converts a set of options to a pdf using jspdf. Built to be used with paper-form and form-creator
+
+@demo demo/index.html
+-->
+
+<dom-module id="form-pdf">
+  <template>
+    <style>
+      :host {
+        display: block;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      iframe{
+        width: 100%;
+        height: 700px;
+        border: none;
+      }
+    </style>
+
+    <template is="dom-if" if="[[_shouldShowOutput(pdf, showOutput)]]">
+      <iframe src="[[pdf]]" width="" height=""></iframe>
+    </template>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'form-pdf',
+
+      properties: {
+        // Title of form.. Added to header of each page
+        formTitle: {
+          type: String
+        },
+        // PDF object
+        data: {
+          type: Array
+        },
+        // Base 64 pdf string
+        pdf: {
+          type: String,
+          notify: true
+        },
+        // Show generated pdf in iframe
+        showOutput: {
+          type: Boolean,
+          value: false
+        },
+        // hides page number at bottom of PDF
+        hidePageNumber: {
+          type: Boolean,
+          value: false
+        },
+        // Auto generate PDF on changes to the data attr
+        autoGenerate: {
+          type: Boolean,
+          value: false
+        },
+
+        // x val for jspdf
+        _x: {
+          type: Number,
+          value: 40
+        },
+        // current y val for jspdf
+        _y: {
+          type: Number,
+          value: 40
+        },
+        // container width of PDF
+        _width: {
+          type: Number,
+          value: 520
+        }
+      },
+
+      observers: [
+        '_dataChanged(data.*)'
+      ],
+
+      generatePdf: function(){
+        var doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'pt',
+          format: [612, 792]
+        });
+        var totalPagesExp = "{total_pages_count_string}";
+        var pageContent = function (data) {
+          // HEADER
+          doc.setFontSize(20);
+          doc.setTextColor(40);
+          doc.setFontStyle('normal');
+          doc.text(this.formTitle, 40, 35);
+          // FOOTER
+          var str = "Page " + data.pageCount;
+          // Total page number plugin only available in jspdf v1.0+
+          if (!this.hidePageNumber && typeof doc.putTotalPages === 'function') {
+              str = str + " of " + totalPagesExp;
+          }
+          doc.setFontSize(10);
+          if (!this.hidePageNumber) {
+            doc.text(str, 40, doc.internal.pageSize.height - 12);
+          }
+        }.bind(this);
+
+        // columns is hidden.. just a placeholder
+        var columns = ["row"];
+        var rows = this._computeTableRows(this.data);
+
+        // Generate table
+        doc.autoTable(columns, rows, {
+          // Hide header
+          showHeader: 'never',
+          tableLineColor: 210,
+          tableLineWidth: 0.7,
+
+          styles: {
+            cellPadding: { top: 17, right: 12, bottom: 17, left: 12},
+            fontSize: 11,
+            fillColor: 250,
+            lineColor: 210,
+            lineWidth: 0.7,
+            columnWidth: 'auto',
+            overflow: 'linebreak'
+          },
+          alternateRowStyles: {
+            fillColor: 245
+          },
+          addPageContent: pageContent,
+          margin: { top: 60 }
+        });
+
+
+        // Total page number plugin only available in jspdf v1.0+
+        if (!this.hidePageNumber && typeof doc.putTotalPages === 'function') {
+          doc.putTotalPages(totalPagesExp);
+        }
+
+        this.pdf = doc.output('datauristring') ;
+      },
+
+      _computeTableRows: function(data){
+        var rows = [];
+        for (var i = 0; i < data.length; i++) {
+
+          var title = data[i].label;
+          if (data[i].type == "checkbox") {
+            var val = this._getCheckboxValues(data[i].selectedValues);
+          }else {
+            var val = data[i].value || " ";
+          }
+          var row = (i+1) + ": " + title + "\n\n" + val;
+          rows.push( [row] );
+        }
+        return rows;
+      },
+
+      _getCheckboxValues: function(values) {
+        var string = "";
+        for (var i = 0; i < values.length; i++) {
+          string =  string + "· " + values[i] + "\n";
+        }
+        return string;
+      },
+
+      _dataChanged: function() {
+        if (this.autoGenerate && this.data) {
+          this.generatePdf();
+        }
+      },
+
+      _shouldShowOutput: function(pdf, showOutput){
+        if (pdf && showOutput) {
+          return true;
+        }
+      }
+
+    });
+  </script>
+</dom-module>

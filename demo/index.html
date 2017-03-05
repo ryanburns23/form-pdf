@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>form-pdf demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../paper-form/paper-form.html">
+    <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
+    <link rel="import" href="../../marked-element/marked-element.html">
+
+    <link rel="import" href="../form-pdf.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+    <dom-module id="demo-element">
+      <template>
+        <style>
+          :host {
+            display: block;
+          }
+
+          .content, .options{
+            max-width: 1400px;
+            @apply(--layout-horizontal);
+            @apply(--layout-center-justified);
+            @apply(--layout-wrap);
+            margin: 0 auto;
+          }
+          paper-checkbox{
+            margin-right: 15px;
+          }
+          .center{
+            margin-top: 10px;
+            @apply(--layout-horizontal);
+            @apply(--layout-center-center);
+          }
+
+          .input, .output{
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+          }
+          .scrollable{
+            padding: 20px;
+            overflow: auto;
+          }
+        </style>
+
+
+        <div class="options">
+          <paper-checkbox checked="{{showOutput}}">Show Output</paper-checkbox>
+          <paper-checkbox checked="{{autoGenerate}}">Auto-generate</paper-checkbox>
+          <paper-checkbox checked="{{hidePageNumber}}">Hide Page Number</paper-checkbox>
+        </div>
+        <div class="center">
+          <paper-button raised>Generate PDF</paper-button>
+
+        </div>
+
+
+        <div class="content">
+          <div class="input">
+            <h2>INPUT:</h2>
+            <marked-element>
+              <div class="markdown-html"></div>
+              <script type="text/markdown">
+
+                ```html
+                <paper-form
+                  form-title="I <3 PDF's & Polymer"
+                  fields="{{data}}">
+                </paper-form>
+                ```
+              </script>
+            </marked-element>
+
+            <paper-form
+              form-title="I <3 PDF's & Polymer"
+              fields="{{data}}">
+            </paper-form>
+
+          </div>
+
+          <div class="output">
+            <h2>OUTPUT:</h2>
+            <marked-element>
+              <div class="markdown-html"></div>
+              <script type="text/markdown">
+
+                ```html
+                <form-pdf
+                  form-title="I <3 PDF's & Polymer"
+                  data="[[data]]"
+                  auto-generate
+                  show-output
+                  pdf="{{pdf}}">
+                </form-pdf>
+                ```
+              </script>
+            </marked-element>
+
+            <form-pdf
+              form-title="I <3 PDF's & Polymer"
+              data="[[data]]"
+              hide-page-number="[[hidePageNumber]]"
+              auto-generate="[[autoGenerate]]"
+              show-output="[[showOutput]]"
+              pdf="{{pdf}}">
+            </form-pdf>
+
+            <div class="scrollable">
+              [[pdf]]
+            </div>
+          </div>
+
+        </div>
+
+
+      </template>
+      <script>
+        Polymer({
+          is: 'demo-element',
+          properties: {
+            autoGenerate: {
+              type: Boolean,
+              value: true
+            },
+            showOutput: {
+              type: Boolean,
+              value: true
+            },
+            hidePageNumber: {
+              type: Boolean,
+              value: false
+            },
+            data: {
+              type: Array,
+              value: [
+                {
+                  "type": "input",
+                  "label": "input",
+                  "value": "Ryan Burns"
+                },
+                {
+                  "type": "textarea",
+                  "label": "textarea",
+                  "value": "Yo this is a cool textarea\nyooooooo"
+                },
+                {
+                  "type": "email",
+                  "required": true,
+                  "label": "email",
+                  "value": "ryan@ryanburns.io"
+                },
+                {
+                  "type": "date",
+                  "year": true,
+                  "label": "date",
+                  "value": "2017-03-03"
+                },
+                {
+                  "type": "time",
+                  "label": "time",
+                  "hour": "4",
+                  "min": "03",
+                  "value": "4:03 AM",
+                  "amPm": "AM"
+                },
+                {
+                  "type": "radio",
+                  "label": "radio buttons",
+                  "items": [
+                    "Option 1",
+                    "Option 2",
+                    "Option 3"
+                  ],
+                  "value": "Option 2"
+                },
+                {
+                  "type": "dropdown",
+                  "label": "dropdown",
+                  "items": [
+                    "Option 1",
+                    "Option 2",
+                    "Option 3",
+                    "Option 4"
+                  ],
+                  "value": "Option 4"
+                },
+                {
+                  "type": "checkbox",
+                  "label": "checkbox",
+                  "items": [
+                    "Option 1",
+                    "Option 2",
+                    "Option 3",
+                    "Option 4"
+                  ],
+                  "selectedValues": [
+                    "Option 3",
+                    "Option 4",
+                    "Option 2"
+                  ]
+                }
+              ]
+            }
+          },
+        });
+      </script>
+    </dom-module>
+
+    <demo-element></demo-element>
+
+  </body>
+</html>
