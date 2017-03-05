@@ -52,7 +52,7 @@ Converts a set of options to a pdf using jspdf. Built to be used with paper-form
         // Show generated pdf in iframe
         showOutput: {
           type: Boolean,
-          value: false
+          value: true
         },
         // hides page number at bottom of PDF
         hidePageNumber: {
@@ -98,7 +98,9 @@ Converts a set of options to a pdf using jspdf. Built to be used with paper-form
           doc.setFontSize(20);
           doc.setTextColor(40);
           doc.setFontStyle('normal');
-          doc.text(this.formTitle, 40, 35);
+          if (this.formTitle) {
+            doc.text(this.formTitle, 40, 35);
+          }
           // FOOTER
           var str = "Page " + data.pageCount;
           // Total page number plugin only available in jspdf v1.0+
@@ -151,11 +153,11 @@ Converts a set of options to a pdf using jspdf. Built to be used with paper-form
         var rows = [];
         for (var i = 0; i < data.length; i++) {
 
-          var title = data[i].label;
+          var title = data[i].label || "";
           if (data[i].type == "checkbox") {
             var val = this._getCheckboxValues(data[i].selectedValues);
           }else {
-            var val = data[i].value || " ";
+            var val = data[i].value || "";
           }
           var row = (i+1) + ": " + title + "\n\n" + val;
           rows.push( [row] );
@@ -172,7 +174,7 @@ Converts a set of options to a pdf using jspdf. Built to be used with paper-form
       },
 
       _dataChanged: function() {
-        if (this.autoGenerate && this.data) {
+        if (this.autoGenerate && this.data && this.data.length) {
           this.generatePdf();
         }
       },
